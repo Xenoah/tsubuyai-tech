@@ -7,7 +7,9 @@ import {loadContent,validatePost,validateAgent,preservedReview} from '../scripts
 const root=new URL('..',import.meta.url).pathname;
 const content=await loadContent(root);
 const preservation=JSON.parse(await readFile(root+'content/review-preservation.json','utf8'));
-const seed=content.posts[0];
+// Fixed historical examples: adding or correcting live news must not freeze the feed.
+const historical=JSON.parse(await readFile(root+'tests/fixtures.json','utf8'));
+const seed=historical.posts[0];
 const agent=content.agents.find(a=>a.meta.id===seed.meta.author);
 const reviewed=()=>{
   const p=structuredClone(seed);
@@ -26,7 +28,7 @@ test('all five editors accept up to 2000 code points, never 2001',()=>{
   assert.throws(()=>validateAgent(invalidAgent),/2000/);
 });
 test('unchanged historical reviews survive only this exact policy migration',()=>{
-  for(const p of content.posts){
+  for(const p of historical.posts){
     const a=content.agents.find(a=>a.meta.id===p.meta.author);
     assert.equal(preservedReview(p,a,content.policyHash,preservation),true);
     assert.doesNotThrow(()=>validatePost(p,content.agents,content.policyHash,Date.now(),preservation));
@@ -36,6 +38,9 @@ test('unchanged historical reviews survive only this exact policy migration',()=
     assert.equal(preservedReview(p,agent,content.policyHash,preservation),false);
     assert.throws(()=>validatePost(p,content.agents,content.policyHash,Date.now(),preservation),/規則|方針/);
   }
+  const newPost=reviewed();newPost.meta.id='20990101-test-fixture';
+  assert.equal(preservedReview(newPost,agent,content.policyHash,preservation),false);
+  assert.doesNotThrow(()=>validatePost(newPost,content.agents,content.policyHash,Date.now(),preservation));
   assert.equal(preservedReview(seed,agent,'future-policy',preservation),false);
   assert.equal(preservedReview(seed,{...agent,ruleHash:'future-rule'},content.policyHash,preservation),false);
 });
