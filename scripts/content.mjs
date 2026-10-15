@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
-export const CATEGORIES = ['ai', 'robotics', 'electronics', 'space', 'science'];
+export const CATEGORIES = ['ai', 'robotics', 'electronics', 'space', 'science', 'ip'];
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
 export const digest = text => createHash('sha256').update(text).digest('hex');
