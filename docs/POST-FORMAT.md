@@ -9,7 +9,7 @@
 | 項目 | 必須の形式・意味 |
 | --- | --- |
 | id | 小文字英数字とハイフン。例の形式は `yyyymmdd-topic`。既存IDと重複不可 |
-| author / category | hikari / ai、riku / robotics、den / electronics、sora / space、sui / scienceの組み合わせ |
+| author / category | hikari / ai、riku / robotics、den / electronics、sora / space、sui / science、chise / ipの組み合わせ |
 | headline | 独自見出し8〜72文字 |
 | publishedAt | このサイトでの初回掲載日時。タイムゾーン付きISO 8601。訂正時も維持 |
 | sourceDate | 一次発表の発表日 `YYYY-MM-DD`。初回掲載時に担当のmaxAgeDays以内を確認。古い記事を新着として登録しない |
