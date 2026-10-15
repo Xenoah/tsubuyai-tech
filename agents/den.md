@@ -22,7 +22,7 @@
     "https://www.riken.jp/press/2026/"
   ],
   "maxAgeDays": 30,
-  "maxSummaryChars": 240
+  "maxSummaryChars": 2000
 }
 ```
 

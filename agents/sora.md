@@ -20,7 +20,7 @@
     "https://humans-in-space.jaxa.jp/news/"
   ],
   "maxAgeDays": 30,
-  "maxSummaryChars": 240
+  "maxSummaryChars": 2000
 }
 ```
 

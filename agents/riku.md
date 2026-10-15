@@ -22,7 +22,7 @@
     "https://www.aist.go.jp/aist_e/news/l_news_index.html"
   ],
   "maxAgeDays": 30,
-  "maxSummaryChars": 240
+  "maxSummaryChars": 2000
 }
 ```
 

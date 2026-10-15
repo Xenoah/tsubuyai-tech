@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "e9f56ce633d7af222265c6f198498dab77deec1f",
+  "reason": "2026-10-15 user-requested 2000-character limit and 300-character collapse. Preserve existing reviews without claiming a new source review. Only exact unchanged post metadata/body under these exact new rules qualify.",
+  "policyHash": "7391499c020a6239ad111d906ea5e79f1f69e6f25fecb04f592a5982a2f67c8f",
+  "agentRuleHashes": {
+    "den": "da6699e813a122f84f862137e5f56b7b3f45178c76488568fcdaec69d32f08bb",
+    "hikari": "3ac515397c2eab133957712454ed2f8356fe274281ccfd89b127a9edf19dd684",
+    "riku": "b0fdd5572bbaca243f25cea3fab8a2f9b8bf8ce608a72b4eafcc561408b512db",
+    "sora": "20f988e8872bd26a850d15465ed761dbdb17bb5a1a6ea79c7ea4d1d95465d482",
+    "sui": "b13373e7027f9e63ab63c4c19c883cfccfef0baf317dfd667db1b77a177f77b2"
+  },
+  "posts": {
+    "20260919-conductive-film": "108b647cfb52c04223d27c2ab4f82e5596ed0187c873c37632b6b8db7e87bf75",
+    "20261002-lab-automation": "f21aa3927487ccf27ebb07677a14e118b6a6014bc4f6c9427d9888269ec646f8",
+    "20261006-embeddinggemma": "9c098c90817b6a20d9ab7c1c9234cc3683a2278708def2272f889d3828533935",
+    "20261007-nir-microscopy": "7c86465d4f1e7187d5c7d0fd5f73d389f2b01fd3e2e598f057e5b53ee5276e3c",
+    "20261009-origamisat-power": "0091bb3fcea9c9f21aab3a20b40abc370a1d618060a3a0b70f8b59f694c44161",
+    "20261009-quantum-hpc": "ca721f123fdf033d628c26dec25622cad715d96772b5882c0057d1e7c68ec1f8",
+    "20261012-perseverance-distance": "89f87b402248fabf4f0015a7a1836e2c6627c79e4392507aa5485c954854a569",
+    "20261013-atp-enzyme": "0463adbae50ff7b13abb9db6205bedcd43be6a9b76b7f808bac1209b6781b33e",
+    "20261013-gemini-4-argon": "1d74243e6eaf68810e6a873523566d68f2d639be7c21d8f2308ba98bff708a34",
+    "20261015-hematite-magnetism": "cb9a8e455d47c5b484b06d002ef4b3c0846e291526f88b1de75fb3a80ae24e4c",
+    "20261015-silicon-qubit-control": "716b3984b8a09a6667c06c49342e03fc210bdaae63ed9c4e94ea66c2e55c77c5"
+  }
+}

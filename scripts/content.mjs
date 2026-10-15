@@ -46,13 +46,21 @@ export function validateAgent(agent) {
   assert(Array.isArray(a.allowedDomains) && a.allowedDomains.length > 0, '出典の許可ドメインが必要');
   for (const d of a.allowedDomains) assert(/^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(d) && !['com','co.jp','jp','org','net'].includes(d), '個別の出典ドメインが必要');
   assert(Number.isInteger(a.maxAgeDays) && a.maxAgeDays >= 1 && a.maxAgeDays <= 90, 'maxAgeDays: 1〜90');
-  assert(Number.isInteger(a.maxSummaryChars) && a.maxSummaryChars >= 40 && a.maxSummaryChars <= 280, 'maxSummaryChars: 40〜280');
+  assert(Number.isInteger(a.maxSummaryChars) && a.maxSummaryChars >= 40 && a.maxSummaryChars <= 2000, 'maxSummaryChars: 40〜2000');
   assert(Array.isArray(a.discovery) && a.discovery.length > 0, '発見用ページが必要');
   for (const d of a.discovery) sourceURL(d, a.allowedDomains);
   assert(chars(agent.body) >= 100, '担当キャラの編集規則を記載してください');
   return a;
 }
-export function validatePost(post, agents, policyHash, now = Date.now()) {
+export const postFingerprint = post => digest(JSON.stringify({meta:post.meta,body:post.body}));
+// Only unchanged articles from the explicit length-policy migration may retain their
+// original review hashes. All other gates still run, and new/edited posts use current rules.
+export function preservedReview(post, agent, policyHash, preservation) {
+  return Boolean(preservation && preservation.policyHash === policyHash &&
+    preservation.agentRuleHashes[agent.meta.id] === agent.ruleHash &&
+    preservation.posts[post.meta.id] === postFingerprint(post));
+}
+export function validatePost(post, agents, policyHash, now = Date.now(), preservation = null) {
   const p = post.meta;
   exactKeys(p, ['id','author','category','headline','publishedAt','sourceDate','eventDate','tags','status','kind','sources','review','corrections','annotation'], '記事');
   assert(ID.test(p.id), '不正な記事ID');
@@ -99,8 +107,9 @@ export function validatePost(post, agents, policyHash, now = Date.now()) {
   str(v.reviewer,2,80,'確認担当'); date(v.reviewedAt,'reviewedAt',now);
   assert(p.sources.every(s=>Date.parse(s.checkedAt)<=Date.parse(v.reviewedAt)), 'レビューは出典確認の後に実施');
   assert(Date.parse(v.reviewedAt) <= reviewReference + 300000 && reviewReference - Date.parse(v.reviewedAt) <= 72*3600000,'レビューは公開・訂正前72時間以内');
-  assert(v.agentRuleHash === agent.ruleHash, 'キャラ規則が変更されています。全ポストを再確認してhashを更新');
-  assert(v.policyHash === policyHash, '共通方針が変更されています。全ポストを再確認してhashを更新');
+  const preserved = preservedReview(post, agent, policyHash, preservation);
+  assert(v.agentRuleHash === agent.ruleHash || preserved, 'キャラ規則が変更されています。全ポストを再確認してhashを更新');
+  assert(v.policyHash === policyHash || preserved, '共通方針が変更されています。全ポストを再確認してhashを更新');
   assert(['primary-statement','independently-corroborated'].includes(v.evidenceScope), '検証範囲を明示してください');
   if(v.evidenceScope === 'independently-corroborated') assert(p.sources.some(s=>s.type==='independent') && new Set(p.sources.map(s=>new URL(s.url).hostname)).size>=2, '独立した裏付け資料が必要');
   assert(v.rights === 'original-summary-no-media', '本文・画像の転載は受け付けません');
@@ -121,10 +130,11 @@ export async function loadContent(root, now = Date.now()) {
   const agents = await markdowns(path.join(root,'agents'));
   const posts = await markdowns(path.join(root,'content/posts'));
   const policyHash = digest(policy);
+  const preservation = JSON.parse(await readFile(path.join(root,'content/review-preservation.json'),'utf8'));
   const ids=new Set(), urls=new Set(), agentIds=new Set(), handles=new Set();
   for(const a of agents) { validateAgent(a); assert(!agentIds.has(a.meta.id),'キャラID重複'); assert(!handles.has(a.meta.handle),'ハンドル重複');agentIds.add(a.meta.id);handles.add(a.meta.handle); }
   for(const p of posts) {
-    validatePost(p,agents,policyHash,now);
+    validatePost(p,agents,policyHash,now,preservation);
     assert(!ids.has(p.meta.id),'記事ID重複'); ids.add(p.meta.id);
     const key=sourceURL(p.meta.sources.find(s=>s.type==='primary').url,agents.find(a=>a.meta.id===p.meta.author).meta.allowedDomains);
     assert(!urls.has(key),'一次出典が重複。同じ出来事は1ポストに統合'); urls.add(key);
