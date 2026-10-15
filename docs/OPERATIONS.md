@@ -8,8 +8,21 @@
 
 ## 2026-10-15 初回公開作業
 
-ローカルで14テスト・静的ビルドに合格。GitHubの対象リポジトリと書き込み権限を確認済み。
-GitHub上でのCI・リリース公開・Pages配信・毎時タスクは、結果を確認してからこの記録に追記する。
+ローカルとGitHub Actionsの両方で14テスト・静的ビルドに合格。5キャラクター・7ポストをmainに保存済み。
+
+- 初回実装コミット: `b627c6e0bc0209e9443989aff954242d2b221ad5`。
+- [リリース v0.1.0](https://github.com/Xenoah/tsubuyai-tech/releases/tag/v0.1.0): 2026-10-15 19:48 JST公開済み。draft・prereleaseではなく、配信用ZIP・単体HTML・SHA-256の3点を添付。
+- [リリースCI](https://github.com/Xenoah/tsubuyai-tech/actions/runs/38722830110): 成功。
+- [Pages CI](https://github.com/Xenoah/tsubuyai-tech/actions/runs/38722829873): build成功、deployのConfigure Pagesで失敗。GitHub APIのhas_pagesはfalse。Web配信は未完了。
+- GPTの更新タスク: 毎時00分・Asia/Tokyoで有効化済み。開始予定2026-10-15 20:00 JST。定期タスクの初回完了はまだ未確認。
+
+## Pagesの初回有効化
+
+リポジトリ所有者が **Settings → Pages → Build and deployment → Source → GitHub Actions** を選択する。その後、上記Pages CIの **Re-run failed jobs** を実行すれば、成功済みのbuildの成果物から配信を再開できる。成果物の期限が切れている場合は **Actions → Validate and deploy Pages → Run workflow** で再ビルドする。
+
+接続中のGitHub連携はコード更新・Actionsの結果確認・再実行に対応するが、Pagesの初回有効化の管理操作は提供していない。GitHub公式configure-pagesのenablementオプションはGITHUB_TOKEN以外の管理権限を持つトークンが必要なため、トークンを追加保存して迂回する構成にはしていない。
+
+初回有効化以後は、検証済みニュースのmainへのpushで通常のPages配信が走る。リリースのダウンロード公開はPages有効化に依存しない。
 
 ## 更新担当GPTの実行条件
 

@@ -37,3 +37,12 @@ GitHub Actionsが成功し、Pages URLのホーム・アカウント・検索・
 - HTML/CSS/JS/テーマ初期化/初期データの合計96.1 KiB、gzip換算29.8 KiB。外部依存なし。GitHub Pagesでの実転送量は未測定。
 - JavaScript構文、単一HTMLの両スクリプト、静的HTMLのID重複・JavaScriptが参照するID・配信スクリプトのリンク先を確認。
 - 実ブラウザ描画・操作・アクセシビリティ・端末FPSは未確認。Sitesの作業規則では、対応するcontrol-browser機能のない管理環境で別のブラウザ経路を使わず、ブラウザQAを省略する指定となっている。今回その機能がなく、スクリーンショット検証は行っていない。
+
+## GitHubへの初回公開（2026-10-15）
+
+- リポジトリをXenoah/tsubuyai-techに設定して再検証。ローカル14テスト・ビルド成功。
+- GitHub Actions上でも14テスト・ビルド・Pages成果物のアップロードに成功。
+- v0.1.0のGitHub Releaseを公開。配信用ZIP・単体HTML・SHA-256のuploaded状態とサイズをGitHub APIで確認。
+- Pagesの配信は未完了。サイトが未有効のため、Configure PagesがNot Foundで停止した。初回有効化の操作はOPERATIONS.md参照。
+- 毎時00分（日本時間）の外部GPT更新タスクを有効化。定期実行の完了とWebへの反映は、設定完了とは区別して確認する。
+- ブラウザ操作と実機FPSの未確認範囲は継続。GitHub管理画面の確認をサイトUIの動作検証として数えない。

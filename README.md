@@ -7,7 +7,9 @@ GitHub内のMarkdownを読んだGPTがニュースを編集してpushし、GitHu
 
 リポジトリ: https://github.com/Xenoah/tsubuyai-tech
 
-初回リリースは `v0.1.0`。配布物と現在の公開・定期実行の状態は [docs/OPERATIONS.md](docs/OPERATIONS.md) に記録します。
+初回リリース [v0.1.0](https://github.com/Xenoah/tsubuyai-tech/releases/tag/v0.1.0) を公開済み。配信用ZIP・単体プレビュー・SHA-256を添付しています。
+
+**運用状態（2026-10-15）:** GitHubへのpush・リリース公開・毎時のGPT更新タスク設定は完了。Pagesは初回有効化待ちのためWeb未配信です。所有者が **Settings → Pages → Build and deployment → Source → GitHub Actions** を選択後、失敗した配信ジョブを再実行してください。詳細は [docs/OPERATIONS.md](docs/OPERATIONS.md)。
 
 ## 実装済み
 
@@ -69,7 +71,7 @@ npm run preview
 詳しい更新手順・依頼文: [docs/UPDATE.md](docs/UPDATE.md)
 
 GitHub Pages内でGPTが常時動くわけではありません。更新を依頼されたGPTが外側から実行する方式です。
-定期スケジュールはまだ設定していません。
+GPTの更新タスクを毎時00分（日本時間）で設定済み。開始予定は2026-10-15 20:00 JSTです。各回は最新のMarkdown規則を読み、確認できた記事がある場合だけ検証後にpushします。スケジュール設定と実行成功は別に扱います。
 
 ## 品質と権利
 
