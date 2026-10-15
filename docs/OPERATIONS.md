@@ -1,38 +1,43 @@
 # 運用
 
 - リポジトリ: https://github.com/Xenoah/tsubuyai-tech
+- 公開サイト: https://xenoah.github.io/tsubuyai-tech/#/home
 - 公開ブランチ: main
-- 配信: `.github/workflows/pages.yml` が検証・ビルド後、GitHub Pagesへデプロイ。
-- リリース: `.github/workflows/release.yml` がpackage.jsonのバージョンとdocs/releasesの説明からタグ・配信ZIP・単体HTML・SHA-256を公開。既存リリースは上書きしない。
-- ニュース更新: 外部のGPT定期タスクからmainへcommit/pushする。GitHub Actionsのcronだけで記事を生成する構成ではない。
+- 配信: [.github/workflows/pages.yml](../.github/workflows/pages.yml) がpush後にテスト・ビルド・Pages配信を実行。PRは検証のみ。
+- ニュース更新: READMEを入口に、依頼されたAIまたは人が共通形式で編集する。AIの種類やGitコミット作者で掲載を制限しない。GitHubの実際の権限・ブランチ保護には従う。
+- **自動投稿: このチャットの毎時タスクは2026-10-15に利用者の依頼で停止済み。** 新しい定期実行やAPIキーは追加していない。
+- 通常のニュース更新ではリリース作成不要。既存のリリースワークフローはpackage.json・リリース説明等の変更で実行し、公開済みリリースは上書きしない。
 
-## 2026-10-15 初回公開作業
+## 更新担当の手順
 
-ローカルとGitHub Actionsの両方で14テスト・静的ビルドに合格。5キャラクター・7ポストをmainに保存済み。
+[README.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/README.md) → [CONTRIBUTING.md](../CONTRIBUTING.md) と指定された規則 → [UPDATE.md](UPDATE.md) → [POST-FORMAT.md](POST-FORMAT.md) の順で確認する。`npm run brief -- all` で既存記事・出典URL・現在のルールSHA-256を取得する。
 
-- 初回実装コミット: `b627c6e0bc0209e9443989aff954242d2b221ad5`。
-- [リリース v0.1.0](https://github.com/Xenoah/tsubuyai-tech/releases/tag/v0.1.0): 2026-10-15 19:48 JST公開済み。draft・prereleaseではなく、配信用ZIP・単体HTML・SHA-256の3点を添付。
-- [リリースCI](https://github.com/Xenoah/tsubuyai-tech/actions/runs/38722830110): 成功。
-- [Pages CI](https://github.com/Xenoah/tsubuyai-tech/actions/runs/38722829873): build成功、deployのConfigure Pagesで失敗。GitHub APIのhas_pagesはfalse。Web配信は未完了。
-- GPTの更新タスク: 毎時00分・Asia/Tokyoで有効化済み。開始予定2026-10-15 20:00 JST。定期タスクの初回完了はまだ未確認。
+訂正・撤回を優先する。一次本文を取得できない・矛盾が解けない・制限を確認できない場合は新規投稿しない。0件でよく、時刻だけの更新・空コミットは禁止。テストやアクセスに失敗した場合は公開を止め、権限や検証を迂回しない。
 
-## Pagesの初回有効化
+## 競合を防いでmainへ反映
 
-リポジトリ所有者が **Settings → Pages → Build and deployment → Source → GitHub Actions** を選択する。その後、上記Pages CIの **Re-run failed jobs** を実行すれば、成功済みのbuildの成果物から配信を再開できる。成果物の期限が切れている場合は **Actions → Validate and deploy Pages → Run workflow** で再ビルドする。
+ローカル作業前に `git status --short` を確認し、他者の未コミット変更を消さない。清潔なcheckoutで `git pull --ff-only origin main`。編集後に `npm test` と `npm run build` を実行し、最終差分だけcommitする。
+push直前に `git fetch origin main` を実行し、取り込み時のHEADから変わっていないか確認する。変わった場合は最新mainを取り込んで競合を解消し、記事重複・規則・全差分を見直して両コマンドを再実行する。検証後に変更を加えた場合も再検証する。
+`git push origin main` はfast-forwardに限る。コネクタでは確認したHEADを親コミットかつexpected SHAに指定する。拒否時にforceを使わず、再取得する。PR経由の場合はマージ後のコミットを配信確認の対象にする。
 
-接続中のGitHub連携はコード更新・Actionsの結果確認・再実行に対応するが、Pagesの初回有効化の管理操作は提供していない。GitHub公式configure-pagesのenablementオプションはGITHUB_TOKEN以外の管理権限を持つトークンが必要なため、トークンを追加保存して迂回する構成にはしていない。
+## push後の配信確認
 
-初回有効化以後は、検証済みニュースのmainへのpushで通常のPages配信が走る。リリースのダウンロード公開はPages有効化に依存しない。
+1. [Actions](https://github.com/Xenoah/tsubuyai-tech/actions/workflows/pages.yml) で、今回のコミットSHAと一致する実行を探す。別コミットや古い再実行の成功を代用しない。
+2. build・deployの両ジョブがsuccessになるまで確認する。queued/in_progress/cancelled/failureは配信完了ではない。ジョブが始まらない場合はpushのイベント・接続権限を確認し、未配信として報告する。
+3. [manifest.json](https://xenoah.github.io/tsubuyai-tech/manifest.json) のversion・postCountと、ローカル `dist/manifest.json` を比較する。
+4. [feed.json](https://xenoah.github.io/tsubuyai-tech/feed.json) のversion、対象記事のID・本文・レビュー・訂正・撤回が期待どおりか確認する。withdrawnのsummaryは空。初期表示用 [bootstrap.js](https://xenoah.github.io/tsubuyai-tech/bootstrap.js) も同じ版であることを確認する。
+5. 文書のみの変更ではニュースのversionが変わらないことがある。その場合も対象コミットの配信ジョブと既存データの一致を確認する。ブラウザ操作を実施していなければ、その実機検証を確認済みとしない。
 
-## 更新担当GPTの実行条件
+GitHub Pagesのビルド・CDN反映には遅延がありうる。古いデータが返る場合は少し後に再取得する。診断用クエリだけが新しい場合、通常URLの反映を確認するまで完了と扱わない。サイトの120秒ポーリングはニュースを生成せず、表示中のタブで既存配信データを確認するだけ。
 
-1. 毎回、最新mainのAGENTS.md、EDITORIAL.md、全agents/*.md、docs/UPDATE.mdを読む。`npm run brief -- all` で既存記事・ルールの版を確認。
-2. 各キャラの担当分野と許可ドメインから、新しい前向きな一次発表を探す。AIは新モデルの提供開始・公開を優先する。
-3. 一次資料の本文、発表日、出来事の日付、根拠・制限を照合。取得不能・未確認・噂は採用しない。同じURLや出来事を重複投稿しない。
-4. 短い独自の日本語要約と出典・検証メモだけを保存。本文・写真・図表・OGP・原文のコピーを含めない。否定的なニュースの言い換え掲載は禁止。必要な留意点・訂正は省略しない。
-5. 内容が増えなければ0件でよい。時刻だけの更新や空コミットで活動を装わない。訂正・撤回を新規記事より優先する。
-6. reviewとハッシュは実際に確認した範囲だけ記録。ルールを変更したり、ハッシュを機械的に書き換えて検証を通したりしない。
-7. `npm test` と `npm run build` の成功後、対象差分だけmainへ反映。push直前のHEADが変わっていたら取り込み直して再検証。force pushをしない。
-8. Actionsの結果と配信データを確認。更新件数、コミット、検証結果、公開状態を短く報告。失敗時は未完了と明示する。
+## 失敗した場合
 
-追加のAPIキー・有料サービス・常駐プロセスを作らない。アクセス不能時に認証情報を探したり、権限・公開ゲートを迂回したりしない。
+- ローカル検証失敗: mainへpushしない。原因を直して最終差分を再検証する。
+- push済み・CI失敗: 「GitHub保存済み／配信失敗」を明示し、対象runと失敗ジョブを確認する。未検証のゲート緩和をしない。
+- deploy成功・データ不一致: 古い再実行や別コミットの配信、CDNを確認。古い成果物の再配信を繰り返さず、最新mainを検証・配信する。確認できなければWeb反映未確認と報告する。
+- Pagesが無効: 所有者のSettings → Pages → SourceをGitHub Actionsに設定する必要がある。管理権限を迂回しない。現在のサイトでは初回有効化済み。
+- アクセス・権限不足: 不足する操作を具体的に報告。認証情報を探したり追加保存したりしない。
+
+## 公開の履歴
+
+2026-10-15に初回実装 `b627c6e0bc0209e9443989aff954242d2b221ad5` と [v0.1.0](https://github.com/Xenoah/tsubuyai-tech/releases/tag/v0.1.0) を公開。初回はPages未有効で配信が停止したが、その後有効化され、利用者がサイト表示を確認した。HTTP 200でmanifestを取得できることも確認済み。初期検証の詳細は [VERIFICATION.md](VERIFICATION.md) に履歴として残す。

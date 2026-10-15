@@ -65,6 +65,15 @@ export function validatePost(post, agents, policyHash, now = Date.now()) {
   assert(['published','withdrawn'].includes(p.status), '公開状態はpublished/withdrawn');
   assert(['announcement','research'].includes(p.kind), 'kindはannouncement/research');
   const published = date(p.publishedAt,'publishedAt',now);
+  assert(Array.isArray(p.corrections), '訂正履歴が必要');
+  let reviewReference = published;
+  for(const c of p.corrections) {
+    exactKeys(c,['date','note'],'訂正');
+    const corrected = date(c.date,'訂正日時',now);
+    str(c.note,5,200,'訂正内容');
+    assert(corrected >= reviewReference, '訂正日時は初回公開以降の古い順に記録');
+    reviewReference = corrected;
+  }
   assert(/^\d{4}-\d{2}-\d{2}$/.test(p.sourceDate) && new Date(p.sourceDate).toISOString().slice(0,10) === p.sourceDate, '出典の発表日が必要');
   const sourceDay = Date.parse(`${p.sourceDate}T00:00:00+09:00`);
   assert(sourceDay <= published, '発表より前に公開できません');
@@ -81,15 +90,15 @@ export function validatePost(post, agents, policyHash, now = Date.now()) {
     sourceURL(s.url, agent.meta.allowedDomains);
     for(const k of ['publisher','locator','supports']) str(s[k], 2, k === 'supports' ? 220 : 100, k);
     const checked = date(s.checkedAt, 'checkedAt', now);
-    assert(checked >= sourceDay && checked <= published + 300000, '出典確認の時系列が不正');
-    assert(published - checked <= 72 * 3600000, '公開前72時間以内の出典確認が必要');
+    assert(checked >= sourceDay && checked <= reviewReference + 300000, '出典確認の時系列が不正');
+    assert(reviewReference - checked <= 72 * 3600000, '公開・訂正前72時間以内の出典確認が必要');
   }
   assert(p.sources.some(s => s.type === 'primary'), '一次資料が必要');
   const v=p.review;
   exactKeys(v, ['reviewer','reviewedAt','policyHash','agentRuleHash','evidenceScope','positiveReason','rights','checks','limitation'], 'レビュー');
   str(v.reviewer,2,80,'確認担当'); date(v.reviewedAt,'reviewedAt',now);
   assert(p.sources.every(s=>Date.parse(s.checkedAt)<=Date.parse(v.reviewedAt)), 'レビューは出典確認の後に実施');
-  assert(Date.parse(v.reviewedAt) <= published + 300000 && published - Date.parse(v.reviewedAt) <= 72*3600000,'レビューは公開前72時間以内');
+  assert(Date.parse(v.reviewedAt) <= reviewReference + 300000 && reviewReference - Date.parse(v.reviewedAt) <= 72*3600000,'レビューは公開・訂正前72時間以内');
   assert(v.agentRuleHash === agent.ruleHash, 'キャラ規則が変更されています。全ポストを再確認してhashを更新');
   assert(v.policyHash === policyHash, '共通方針が変更されています。全ポストを再確認してhashを更新');
   assert(['primary-statement','independently-corroborated'].includes(v.evidenceScope), '検証範囲を明示してください');
@@ -100,10 +109,6 @@ export function validatePost(post, agents, policyHash, now = Date.now()) {
   for(const k of ['primaryRead','dateChecked','claimsSupported','notMisleading','noNegativeFocus','rightsChecked','rulesRead']) assert(v.checks[k]===true, `未確認: ${k}`);
   const blocked = /(?:訃報|逮捕|殺害|戦争|炎上|不祥事|大量解雇|倒産|犯罪被害|死者\d|流出事件)/;
   assert(!blocked.test(p.headline+' '+post.body), '除外対象の話題を検出。自動承認不可');
-  assert(Array.isArray(p.corrections), '訂正履歴が必要');
-  for(const c of p.corrections) {
-    exactKeys(c,['date','note'],'訂正'); date(c.date,'訂正日時',now); str(c.note,5,200,'訂正内容');
-  }
   if(p.status === 'withdrawn') assert(p.corrections.length > 0,'撤回理由を記録してください');
   if(p.annotation !== null) str(p.annotation, 3, 100, '編集メモ');
   return p;

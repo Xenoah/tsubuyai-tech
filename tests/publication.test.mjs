@@ -87,3 +87,42 @@ test('hash routes work under project Pages paths and escape untrusted content',(
   assert.equal(readRoute('#/nonsense').view,'home');
   assert.equal(escapeHTML('<script>"&\''),'&lt;script&gt;&quot;&amp;&#39;');
 });
+
+test('all editor tool names use the same publication contract',()=>{
+  for(const reviewer of ['ChatGPT','Codex','Claude','Claude Code','GitHub Copilot']) {
+    const post=mutate(p=>p.meta.review.reviewer=reviewer);
+    assert.doesNotThrow(()=>valid(post));
+    post.meta.review.checks.primaryRead=false;
+    assert.throws(()=>valid(post),/primaryRead/);
+  }
+});
+test('later corrections and withdrawals require fresh review without renewing publication',()=>{
+  const later=now+60*86400000;
+  const post=mutate(p=>{
+    p.meta.corrections=[{date:new Date(later).toISOString(),note:'研究対象の説明を確認して訂正しました。'}];
+    for(const s of p.meta.sources)s.checkedAt=new Date(later-60000).toISOString();
+    p.meta.review.reviewedAt=new Date(later-30000).toISOString();
+  });
+  const validate=p=>validatePost(p,content.agents,content.policyHash,later);
+  assert.doesNotThrow(()=>validate(post));
+  assert.equal(post.meta.publishedAt,seed.publishedAt);
+  assert.equal(post.meta.sourceDate,seed.sourceDate);
+  assert.equal(isRecent(post.meta,later,30),false);
+  const withdrawn=structuredClone(post);withdrawn.meta.status='withdrawn';
+  assert.doesNotThrow(()=>validate(withdrawn));
+  const stale=structuredClone(post);
+  stale.meta.sources=structuredClone(p0.meta.sources);stale.meta.review=structuredClone(p0.meta.review);
+  assert.throws(()=>validate(stale),/72時間/);
+  const undocumented=structuredClone(post);undocumented.meta.corrections=[];
+  assert.throws(()=>validate(undocumented),/時系列/);
+  const renewed=structuredClone(post);renewed.meta.publishedAt=new Date(later).toISOString();
+  assert.throws(()=>validate(renewed),/古い記事/);
+});
+test('corrections reject future, pre-publication, and out-of-order dates',()=>{
+  const corrected=date=>mutate(p=>p.meta.corrections=[{date,note:'確認した内容の訂正理由です。'}]);
+  assert.throws(()=>valid(corrected(new Date(now+3600000).toISOString())),/未来/);
+  assert.throws(()=>valid(corrected(new Date(Date.parse(seed.publishedAt)-1).toISOString())),/初回公開/);
+  const unordered=corrected(new Date(now).toISOString());
+  unordered.meta.corrections.push({date:seed.publishedAt,note:'確認した内容の訂正理由です。'});
+  assert.throws(()=>valid(unordered),/古い順/);
+});
