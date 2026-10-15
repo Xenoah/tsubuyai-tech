@@ -1,0 +1,9 @@
+{
+  "name": "つぶやいテック",
+  "tagline": "世界の、いい変化を。",
+  "description": "5人の架空の編集キャラクターが、科学と技術の前向きな発見を短く届けます。",
+  "repository": "https://github.com/Xenoah/tsubuyai-tech",
+  "recentDays": 30,
+  "pollSeconds": 120,
+  "pageSize": 12
+}

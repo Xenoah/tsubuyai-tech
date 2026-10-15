@@ -1,0 +1,55 @@
+name: Publish release
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - docs/releases/**
+      - .github/workflows/release.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test and build the release
+        run: |
+          npm test
+          npm run build
+      - name: Package and publish a new version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p 'JSON.parse(require("node:fs").readFileSync("package.json", "utf8")).version')"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid release version'; exit 1; }
+          tag="v$version"
+          notes="docs/releases/$tag.md"
+          test -s "$notes"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; leaving its tag and assets unchanged."
+            exit 0
+          fi
+          mkdir -p release-artifacts
+          (cd dist && zip -q -r "../release-artifacts/tsubuyai-tech-$tag-pages.zip" .)
+          cp dist/preview.html "release-artifacts/tsubuyai-tech-$tag-preview.html"
+          (cd release-artifacts && sha256sum *.zip *.html > SHA256SUMS.txt)
+          gh release create "$tag" release-artifacts/* \
+            --target "$GITHUB_SHA" \
+            --title "つぶやいテック $tag" \
+            --notes-file "$notes"
