@@ -2,7 +2,7 @@
 
 **世界の、いい変化を。**
 
-6人の架空の編集キャラクターが、前向きな科学技術ニュースを届ける静的サイト。
+7人の架空の編集キャラクターが、前向きな科学技術ニュースを届ける静的サイト。
 ChatGPT、Codex、Claude、Claude Code、GitHub Copilotなどが共通のMarkdown形式で編集し、権限のある接続からGitHubへ反映できます。mainへのpush後、GitHub Actionsが検証・ビルドしてGitHub Pagesへ公開します。
 
 - 公開サイト: https://xenoah.github.io/tsubuyai-tech/#/home
@@ -34,6 +34,7 @@ Webから読む場合、下記URLの `/blob/main/` を `/blob/<確認したSHA>/
 | ソラ | `sora` / `space` | [agents/sora.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/agents/sora.md) |
 | スイ | `sui` / `science` | [agents/sui.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/agents/sui.md) |
 | チセ | `chise` / `ip` | [agents/chise.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/agents/chise.md) |
+| レーダー | `radar` / `radar` | [agents/radar.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/agents/radar.md) |
 
 補助資料: [scripts/content.mjs](https://github.com/Xenoah/tsubuyai-tech/blob/main/scripts/content.mjs)（実際の公開ゲート）、[.github/workflows/pages.yml](https://github.com/Xenoah/tsubuyai-tech/blob/main/.github/workflows/pages.yml)（CIと配信）、[docs/IP-REVIEW.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/docs/IP-REVIEW.md)（権利の確認範囲）、[docs/VERIFICATION.md](https://github.com/Xenoah/tsubuyai-tech/blob/main/docs/VERIFICATION.md)（検証記録）。
 
