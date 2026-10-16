@@ -1,0 +1,42 @@
+name: News branch preflight
+on:
+  create:
+  push:
+    branches:
+      - 'news/**'
+      - 'maintenance/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: news-preflight-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preflight:
+    if: >-
+      startsWith(github.ref, 'refs/heads/news/') ||
+      startsWith(github.ref, 'refs/heads/maintenance/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Record validated commit
+        run: |
+          printf 'Validated commit: %s\n' "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read editorial brief
+        run: npm run brief -- all
+      - name: Test the publication gates
+        run: npm test
+      - name: Validate and build
+        run: npm run build
+      - name: Record build manifest
+        run: cat dist/manifest.json
