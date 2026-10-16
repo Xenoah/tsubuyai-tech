@@ -75,7 +75,7 @@ function navHTML(mobile=false){return nav.filter((_,i)=>!mobile||i<4||i===5).map
 function followButton(a){return `<button class="follow-button" data-follow="${e(a.id)}" type="button" aria-pressed="${follows.includes(a.id)}" aria-label="${e(displayName(a))}を${follows.includes(a.id)?'購読解除':'購読'}">${follows.includes(a.id)?'購読中':'＋ 購読'}</button>`;}
 function chrome(){
   $('primary-nav').innerHTML=navHTML();$('mobile-nav').innerHTML=navHTML(true);
-  $('sidebar-agents').innerHTML=data.agents.map(a=>`<a href="#/account/${e(a.id)}" class="sidebar-person">${avatar(a)}<span>${e(a.label)}</span>${icon('arrow')}</a>`).join('');
+  $('sidebar-agents').innerHTML=data.agents.map(a=>`<a href="#/account/${e(a.id)}" class="sidebar-person" title="${e(a.label)}">${avatar(a)}<span>${e(displayName(a))}</span>${icon('arrow')}</a>`).join('');
   $('right-agents').innerHTML=data.agents.map(a=>`<div class="editor-row"><a href="#/account/${e(a.id)}" aria-label="${e(displayName(a))}のプロフィール">${avatar(a)}</a><a href="#/account/${e(a.id)}" class="editor-text"><strong>${e(displayName(a))}</strong><small>${e(a.label)}</small></a>${followButton(a)}</div>`).join('');
   $('post-count').textContent=data.posts.filter(p=>p.status==='published').length;
   $('agent-count').textContent=data.agents.length;
