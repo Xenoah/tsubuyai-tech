@@ -1,13 +1,15 @@
 {
-  "sourceCommit": "e9f56ce633d7af222265c6f198498dab77deec1f",
-  "reason": "2026-10-15 user-requested 2000-character limit and 300-character collapse. Preserve existing reviews without claiming a new source review. Only exact unchanged post metadata/body under these exact new rules qualify.",
+  "sourceCommit": "e11d9e2cbe2518fbf5f469e4ee63d02300d5dd7c",
+  "reason": "2026-11-12 user-requested editor profile enrichment (bio/motto for all seven editors) and huggingface.co added to hikari's allowed domains. Preserve existing reviews without claiming a new source review. Only exact unchanged post metadata/body under these exact new rules qualify.",
   "policyHash": "7391499c020a6239ad111d906ea5e79f1f69e6f25fecb04f592a5982a2f67c8f",
   "agentRuleHashes": {
-    "den": "da6699e813a122f84f862137e5f56b7b3f45178c76488568fcdaec69d32f08bb",
-    "hikari": "3ac515397c2eab133957712454ed2f8356fe274281ccfd89b127a9edf19dd684",
-    "riku": "b0fdd5572bbaca243f25cea3fab8a2f9b8bf8ce608a72b4eafcc561408b512db",
-    "sora": "20f988e8872bd26a850d15465ed761dbdb17bb5a1a6ea79c7ea4d1d95465d482",
-    "sui": "b13373e7027f9e63ab63c4c19c883cfccfef0baf317dfd667db1b77a177f77b2"
+    "chise": "7c8b65f153aa0e55c6db0f3982d03620e491ea13df825fb5c8741034c46afc22",
+    "den": "386a4d9e9944cb48213e135b203c3096fa59c6ab0eee6e2676a983d2427034a6",
+    "hikari": "a551288c9121dd55aec4d621876fc6c401825211486a4dd8459696f8ba07824c",
+    "radar": "8b90fe7c50697ba41bd5c6221a8ca6cfd005d6ef930e4cccfe81127df8ae649a",
+    "riku": "2d66e0e02c00c6b7e92189530c138bc6c5137a8df9a47786d5835335d3d20f87",
+    "sora": "067a7bbfa0437059c3179534f65037e55f171430ae640e8f1ac12495701a73d8",
+    "sui": "700aa0d729dde915ee8e13aef8779b16ba39cfe2daacd5eb60af4c53671d55e6"
   },
   "posts": {
     "20260919-conductive-film": "108b647cfb52c04223d27c2ab4f82e5596ed0187c873c37632b6b8db7e87bf75",
@@ -20,6 +22,18 @@
     "20261013-atp-enzyme": "0463adbae50ff7b13abb9db6205bedcd43be6a9b76b7f808bac1209b6781b33e",
     "20261013-gemini-4-argon": "1d74243e6eaf68810e6a873523566d68f2d639be7c21d8f2308ba98bff708a34",
     "20261015-hematite-magnetism": "cb9a8e455d47c5b484b06d002ef4b3c0846e291526f88b1de75fb3a80ae24e4c",
-    "20261015-silicon-qubit-control": "716b3984b8a09a6667c06c49342e03fc210bdaae63ed9c4e94ea66c2e55c77c5"
+    "20261015-silicon-qubit-control": "716b3984b8a09a6667c06c49342e03fc210bdaae63ed9c4e94ea66c2e55c77c5",
+    "20261016-bonsai-2-small-ternary": "a1718eb405dd2625531eadbb3ddbcfeef33987d01d6ee4e01be48e9cc8636501",
+    "20261016-flux-3-klein-layout": "dc033e3bea81a5eb1e2d43200a9e8a0f5a806badce5b616aea108d91af67f1cc",
+    "20261016-gpt-live-1-1-voices": "c6e78fae7e55b3bf9da1839a6fb569029dd56c95d350e51003fa53257cf14491",
+    "20261016-granite-switch-4-1": "a181790952e721c5595ea9ef7c22e3bb9bef90186891cdbd9d79a8c4ff4baf9e",
+    "20261016-muse-spark-open": "2bf2ea4763a6c8bb932b45c3340804c1ce42e624ca85d69c9db992f530a8bb62",
+    "20261016-willow-magic-state": "d226e515fafd5e1f213c6309e9fae0da3985386aec162f181f29426dd734e5b4",
+    "20261016-xray-light-sheet-3d": "e03a471b6d064924a3b101bf20ea64c36af5e0087d63510674c1b2a66c1c5312",
+    "20261017-reflection-beam-weights": "c45b72a1fb024fe91fa38b6480f700701bb678455ef1ec99500f43c12714f084",
+    "20261112-claude-fable-mythos-5-2": "634d4ece886576c48b00f6ed6018ab2be54dfd9e4cc16a5b8fbd20d8e06bbfc5",
+    "20261112-gpt-6-cyber": "896216cb1e09147a779dcd44205cf7196ca789c5255d01ef0cecf1a06c09c383",
+    "20261112-kanana-2-v-decide": "76c414be786e60c04b6656ed25e688362c018981641c5d92e20c1e16f26c7b01",
+    "20261112-minimax-h3-image": "82225a11ad2833897622212571312a2bf66baadab5e94ab38f32c3873ac3d802"
   }
 }
