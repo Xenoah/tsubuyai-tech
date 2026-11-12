@@ -122,6 +122,74 @@ export function validatePost(post, agents, policyHash, now = Date.now(), preserv
   if(p.annotation !== null) str(p.annotation, 3, 100, '編集メモ');
   return p;
 }
+export function validateFeature(feature, agents, posts, policyHash, now = Date.now()) {
+  const p = feature.meta;
+  exactKeys(p, ['id','postId','author','category','headline','publishedAt','sourceDate','eventDate','tags','status','kind','sources','review','corrections','annotation'], '長文記事');
+  assert(ID.test(p.id), '不正な長文記事ID');
+  const agent = agents.find(a => a.meta.id === p.author);
+  assert(agent, `担当キャラクター不明: ${p.author}`);
+  assert(p.category === agent.meta.category, '担当外分野の記事');
+  const linked = posts.find(x => x.meta.id === p.postId);
+  assert(linked, `連携するSNSポストが見つかりません: ${p.postId}`);
+  assert(linked.meta.author === p.author, '長文記事はSNSポストと同じ担当者が書いてください');
+  assert(linked.meta.status === 'published', '取り下げられたポストの長文記事は公開できません');
+  str(p.headline, 8, 72, '独自見出し');
+  assert(typeof feature.body === 'string' && chars(feature.body) >= 800 && chars(feature.body) <= 12000, '長文本文: 800〜12000文字が必要');
+  assert(!/[<>\u0000-\u0008]/.test(feature.body), '長文本文: HTML/制御文字は不可');
+  assert(!/!\[|https?:\/\/|```|^#{1,6} /m.test(feature.body), '長文本文は独自のプレーンテキストのみ');
+  assert(feature.body.includes('\n\n'), '長文本文は段落（空行区切り）で構成してください');
+  assert(['published','withdrawn'].includes(p.status), '公開状態はpublished/withdrawn');
+  assert(['announcement','research'].includes(p.kind), 'kindはannouncement/research');
+  const published = date(p.publishedAt,'publishedAt',now);
+  assert(published >= Date.parse(linked.meta.publishedAt), '長文記事はSNSポストより前に公開できません');
+  assert(Array.isArray(p.corrections), '訂正履歴が必要');
+  let reviewReference = published;
+  for(const c of p.corrections) {
+    exactKeys(c,['date','note'],'訂正');
+    const corrected = date(c.date,'訂正日時',now);
+    str(c.note,5,200,'訂正内容');
+    assert(corrected >= reviewReference, '訂正日時は初回公開以降の古い順に記録');
+    reviewReference = corrected;
+  }
+  assert(/^\d{4}-\d{2}-\d{2}$/.test(p.sourceDate) && new Date(p.sourceDate).toISOString().slice(0,10) === p.sourceDate, '出典の発表日が必要');
+  const sourceDay = Date.parse(`${p.sourceDate}T00:00:00+09:00`);
+  assert(sourceDay <= published, '発表より前に公開できません');
+  assert(published - sourceDay <= (agent.meta.maxAgeDays + 1) * 86400000, '古い記事を新着として登録できません');
+  if(p.eventDate !== null) assert(/^\d{4}-\d{2}-\d{2}$/.test(p.eventDate) && new Date(p.eventDate).toISOString().slice(0,10) === p.eventDate, 'eventDateの形式が不正');
+  assert(Array.isArray(p.tags) && p.tags.length >= 1 && p.tags.length <= 5, 'タグは1〜5件');
+  for(const tag of p.tags) str(tag, 1, 24, 'タグ');
+  assert(Array.isArray(p.sources) && p.sources.length >= 1 && p.sources.length <= 4, '出典は1〜4件');
+  const sourceIds = new Set();
+  for(const s of p.sources) {
+    exactKeys(s, ['id','publisher','url','type','checkedAt','locator','supports'], '出典');
+    assert(ID.test(s.id) && !sourceIds.has(s.id), '出典ID重複/形式不正'); sourceIds.add(s.id);
+    assert(['primary','independent'].includes(s.type), '出典種別が不正');
+    sourceURL(s.url, agent.meta.allowedDomains);
+    for(const k of ['publisher','locator','supports']) str(s[k], 2, k === 'supports' ? 220 : 100, k);
+    const checked = date(s.checkedAt, 'checkedAt', now);
+    assert(checked >= sourceDay && checked <= reviewReference + 300000, '出典確認の時系列が不正');
+    assert(reviewReference - checked <= 72 * 3600000, '公開・訂正前72時間以内の出典確認が必要');
+  }
+  assert(p.sources.some(s => s.type === 'primary'), '一次資料が必要');
+  const v=p.review;
+  exactKeys(v, ['reviewer','reviewedAt','policyHash','agentRuleHash','evidenceScope','positiveReason','rights','checks','limitation'], 'レビュー');
+  str(v.reviewer,2,80,'確認担当'); date(v.reviewedAt,'reviewedAt',now);
+  assert(p.sources.every(s=>Date.parse(s.checkedAt)<=Date.parse(v.reviewedAt)), 'レビューは出典確認の後に実施');
+  assert(Date.parse(v.reviewedAt) <= reviewReference + 300000 && reviewReference - Date.parse(v.reviewedAt) <= 72*3600000,'レビューは公開・訂正前72時間以内');
+  assert(v.agentRuleHash === agent.ruleHash, 'キャラ規則が変更されています。全ポストを再確認してhashを更新');
+  assert(v.policyHash === policyHash, '共通方針が変更されています。全ポストを再確認してhashを更新');
+  assert(['primary-statement','independently-corroborated'].includes(v.evidenceScope), '検証範囲を明示してください');
+  if(v.evidenceScope === 'independently-corroborated') assert(p.sources.some(s=>s.type==='independent') && new Set(p.sources.map(s=>new URL(s.url).hostname)).size>=2, '独立した裏付け資料が必要');
+  assert(v.rights === 'original-summary-no-media', '本文・画像の転載は受け付けません');
+  str(v.positiveReason,10,200,'掲載理由'); str(v.limitation,10,220,'留意点');
+  exactKeys(v.checks,['primaryRead','dateChecked','claimsSupported','notMisleading','noNegativeFocus','rightsChecked','rulesRead'], '確認項目');
+  for(const k of ['primaryRead','dateChecked','claimsSupported','notMisleading','noNegativeFocus','rightsChecked','rulesRead']) assert(v.checks[k]===true, `未確認: ${k}`);
+  const blocked = /(?:訃報|逮捕|殺害|戦争|炎上|不祥事|大量解雇|倒産|犯罪被害|死者\d|流出事件)/;
+  assert(!blocked.test(p.headline+' '+feature.body), '除外対象の話題を検出。自動承認不可');
+  if(p.status === 'withdrawn') assert(p.corrections.length > 0,'撤回理由を記録してください');
+  if(p.annotation !== null) str(p.annotation, 3, 100, '編集メモ');
+  return p;
+}
 async function markdowns(dir) {
   return Promise.all((await readdir(dir)).filter(f=>f.endsWith('.md')).sort().map(async f=>({...parseMarkdown(await readFile(path.join(dir,f),'utf8'),f), filename:f})));
 }
@@ -139,5 +207,13 @@ export async function loadContent(root, now = Date.now()) {
     const key=sourceURL(p.meta.sources.find(s=>s.type==='primary').url,agents.find(a=>a.meta.id===p.meta.author).meta.allowedDomains);
     assert(!urls.has(key),'一次出典が重複。同じ出来事は1ポストに統合'); urls.add(key);
   }
-  return {policy,policyHash,agents,posts};
+  let features=[];
+  try { features = await markdowns(path.join(root,'content/features')); } catch { features = []; }
+  const linkedPosts = new Set();
+  for(const f of features) {
+    validateFeature(f,agents,posts,policyHash,now);
+    assert(!ids.has(f.meta.id),'記事ID重複'); ids.add(f.meta.id);
+    assert(!linkedPosts.has(f.meta.postId),'長文記事は1ポストに1本まで'); linkedPosts.add(f.meta.postId);
+  }
+  return {policy,policyHash,agents,posts,features};
 }
