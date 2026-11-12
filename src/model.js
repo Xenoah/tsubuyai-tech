@@ -31,7 +31,8 @@ export function readRoute(hash) {
   const query=new URLSearchParams(qs).get('q') || '';
   if(type==='account') return {view:'account',author:id,query};
   if(type==='post') return {view:'post',post:id,query};
-  return {view:['home','following','bookmarks','accounts','archive','about'].includes(type)?type:'home',author:'',query};
+  if(type==='feature') return {view:'feature',feature:id,query};
+  return {view:['home','following','bookmarks','features','accounts','archive','about'].includes(type)?type:'home',author:'',query};
 }
 
 export const POST_PREVIEW_CHARS = 300;
