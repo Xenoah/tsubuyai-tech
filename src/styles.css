@@ -55,3 +55,29 @@ dialog{padding:0;width:min(600px,calc(100% - 28px));max-height:85dvh;overflow:au
 .summary-toggle{display:block;color:var(--accent-ink);background:var(--accent-soft);border-radius:9px;padding:9px 13px;min-height:44px;font-size:12px;font-weight:650;margin:-4px 0 14px}
 .summary-toggle:hover{background:var(--accent);color:var(--button-ink)}
 .summary-toggle:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+
+/* Long-form (blog) features */
+.feature-link{display:flex;align-items:center;gap:8px;margin-top:12px;padding:11px 13px;border:1px solid var(--accent);border-radius:11px;background:var(--accent-soft);color:var(--accent-ink);font-size:12px;font-weight:700}
+.feature-link .icon{width:16px;height:16px}
+.feature-link span{flex:1}
+.feature-link:hover{background:var(--accent);color:var(--button-ink)}
+.feature-list{padding:6px 24px 10px}
+.feature-card{padding:22px 0;border-bottom:1px solid var(--line)}
+.feature-card:last-child{border-bottom:0}
+.feature-card-top{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.feature-card-top .post-published{margin-left:auto;white-space:nowrap;padding-top:3px}
+.feature-card h2{font-size:17px;line-height:1.8;font-weight:750;margin:12px 0 8px;overflow-wrap:anywhere}
+.feature-card h2 a:hover{color:var(--accent-ink)}
+.feature-excerpt{font-size:13px;line-height:1.9;color:var(--muted);margin:0}
+.feature-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:var(--panel-soft);font-size:10px}
+.feature-article{padding:22px 26px 28px}
+.feature-back{display:inline-block;font-size:12px;color:var(--accent-ink);font-weight:650;margin-bottom:16px}
+.feature-back:hover{text-decoration:underline}
+.feature-headline{font-size:21px;line-height:1.75;font-weight:800;margin:14px 0 6px;overflow-wrap:anywhere}
+.feature-meta{font-size:11px;color:var(--muted);margin:0 0 18px}
+.feature-body{font-size:15px;line-height:2.05}
+.feature-body p{margin:0 0 1.4em;overflow-wrap:anywhere}
+.feature-more{font-size:12px;margin:18px 0 0}
+.feature-more a{color:var(--accent-ink);font-weight:650}
+.feature-more a:hover{text-decoration:underline}
+@media(max-width:600px){.feature-list{padding:4px 16px 8px}.feature-article{padding:18px 16px 22px}.feature-headline{font-size:19px}.feature-body{font-size:14px;line-height:2}}
